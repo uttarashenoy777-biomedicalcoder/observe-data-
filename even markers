@@ -1,0 +1,39 @@
+% Load EEG data for MM09
+data = load("/Users/uttarashenoyb/Documents/data eeg /ImaginedSpeechData/MM09/EEG_Data.mat");
+
+% Extract EEG_Data
+if isfield(data, 'EEG_Data')
+    EEG_Data = data.EEG_Data;
+else
+    fields = fieldnames(data);
+    EEG_Data = data.(fields{1});
+end
+
+% Set trial number
+trial_num = 2;
+trial_data = EEG_Data.activeEEG{trial_num};
+
+% Get the phoneme prompt for the trial
+if isfield(EEG_Data, 'prompts')
+    phoneme_prompt = strtrim(EEG_Data.prompts{trial_num});  % e.g., "/tiy/"
+else
+    error('Field "prompts" not found.');
+end
+
+% Plot EEG channel 1
+figure;
+plot(trial_data(1, :));
+title(['Trial ' num2str(trial_num) ' - Phoneme: ' phoneme_prompt]);
+xlabel('Samples');
+ylabel('Amplitude (µV)');
+hold on;
+
+% Add event markers every 500 samples, labeled with the phoneme
+event_latencies = 1:500:size(trial_data, 2);
+for e = 1:length(event_latencies)
+    xline(event_latencies(e), 'r--', [' ' phoneme_prompt ' ']);
+end
+
+disp("Plotted phoneme prompt for this trial:");
+disp(phoneme_prompt);
+
